@@ -1,2 +1,2 @@
 # samplex
-Package of useful sampling algorithms written in MLX.
+Package of useful sampling algorithms written in MLX

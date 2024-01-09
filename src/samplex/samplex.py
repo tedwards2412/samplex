@@ -7,3 +7,12 @@ class samplex:
         self.Sampler = Sampler
         self.likelihood = likelihood
         self.prior = prior
+
+    def run():
+        return None
+
+    def plot_chains():
+        return None
+
+    def save():
+        return None

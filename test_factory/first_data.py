@@ -2,12 +2,13 @@ import numpy as np
 import mlx.core as mx
 import matplotlib.pyplot as plt
 from walker_ND import samplex
+from math import pi
 
 
 def generate_data():
     # Parameters we are trying to infer
     m_true = 2.0
-    c_true = 3.0
+    c_true = 2.0
 
     x = mx.linspace(-5, 5, 100)
     err = mx.random.normal(x.shape)
@@ -16,25 +17,31 @@ def generate_data():
     def logLikelihood(theta, data):
         m, c = theta
         x, y, sigma = data
-        return -0.5 * sum((y - (m * x + c)) ** 2 / sigma**2)
+        # return -0.5 * sum((y - (m * x + c)) ** 2 / sigma**2)
+        # return sum(theta ** 2)
+        # sigma = mx.array([1])
+        # return mx.prod((1 / mx.sqrt(2 * pi * sigma**2)) * mx.exp(-0.5 * (y - (m * x + c))**2 / sigma ** 2))
+        return mx.exp(sum(-0.5 * (((y - (m * x + c))**2 / sigma ** 2) + mx.sqrt(2 * pi * sigma**2))))
     
     logL = lambda theta: logLikelihood(theta, (x, y, err))
 
-    Nwalkers = 5
+    Nwalkers = 2
     Ndim = 2
-    Nsteps = 3000
+    Nsteps = 1000
 
     sam = samplex(Nwalkers, Ndim, logL)
     result = sam.run(Nsteps)
+    alpha_range = np.linspace(0.1, 1, Nsteps)
 
     for numwalker in range(Nwalkers):
-        plt.scatter(result[:,numwalker,0], result[:,numwalker,1], s=4)
+        # plt.scatter(result[0,numwalker,0], result[0,numwalker,1], s=1000, color="r")
+        plt.plot(result[:,numwalker,0], result[:,numwalker,1])
 
     plt.show()
 
-    # print(logLikelihood((3.0, 4.0), (x, y, err)))
-    # print(logLikelihood((m_true, c_true), (x, y, err)))
-    # print(logLikelihood((1.0, 2.0), (x, y, err)))
+    print(logL((30.0, 100.0)))
+    print(logL((m_true, c_true)))
+    print(logL((1.0, 2.0)))
 
     # plt.figure(figsize=(10, 5))
     # plt.errorbar(

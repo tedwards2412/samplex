@@ -7,9 +7,9 @@ from tqdm import tqdm
 mx.random.seed(np.random.randint(0, 1000))
 
 class samplex():
-    def __init__(self, Nwalkers, Ndim, target_distribution):
+    def __init__(self, Nwalkers, Ndim, log_target_distribution):
 
-        self.target_distribution = target_distribution
+        self.log_target_distribution = log_target_distribution
         self.Nwalkers = Nwalkers
         self.Ndim = Ndim
 
@@ -32,11 +32,11 @@ class samplex():
 
     def acceptance_probability(self, current, proposal):
         prob = (
-            self.target_distribution(proposal)
-            * self.proposal_distribution(current, proposal)
-            / (self.target_distribution(current) * self.proposal_distribution(proposal, current))
+            self.log_target_distribution(proposal)
+            + mx.log(self.proposal_distribution(current, proposal))
+            - (self.log_target_distribution(current) + mx.log(self.proposal_distribution(proposal, current)))
         )
-        return mx.minimum(1.0, prob)
+        return mx.minimum(0., prob)
 
     def internal_function(self, x0, key, steps):
         xcurrent = x0
@@ -48,7 +48,7 @@ class samplex():
             xproposal = self.sample_proposal_distribution(xcurrent, step_key[step])
             prob = self.acceptance_probability(xcurrent, xproposal)
             rand = mx.random.uniform(key=step_key2[step])
-            xcurrent = mx.where(prob > rand, xproposal, xcurrent)
+            xcurrent = mx.where(prob > mx.log(rand), xproposal, xcurrent)
         return states
 
     def run(self, Nsteps):
@@ -62,11 +62,12 @@ if __name__ == "__main__":
     Ndim = 2
     Nsteps = 3000
 
-    def target_distribution(x):
+    def log_target_distribution(x):
         sigma = mx.array([1])
-        return (1 / mx.sqrt(2 * pi * sigma**2))[0] * mx.exp(-0.5 * sum(x**2) / sigma[0] ** 2)
+        return mx.log((1 / mx.sqrt(2 * pi * sigma**2))[0]) + -0.5 * sum(x**2) / sigma[0] ** 2
+        # return (1 / mx.sqrt(2 * pi * sigma**2))[0] * mx.exp(-0.5 * sum(x**2) / sigma[0] ** 2)
 
-    sam = samplex(Nwalkers, Ndim, target_distribution)
+    sam = samplex(Nwalkers, Ndim, log_target_distribution)
     result = sam.run(Nsteps)
 
     for numwalker in range(Nwalkers):

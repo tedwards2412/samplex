@@ -13,7 +13,7 @@ class samplex():
         self.Nwalkers = Nwalkers
         self.Ndim = Ndim
 
-        self.x0_array = self.initial_condition(mx.zeros((self.Nwalkers, self.Ndim)) - 5, 5.0)
+        self.x0_array = self.initial_condition(mx.zeros((self.Nwalkers, self.Ndim)) +1, 5.0)
         self.key = mx.random.key(1234)
         self.keys = mx.random.split(self.key, self.Nwalkers)
 
@@ -21,13 +21,13 @@ class samplex():
         return mx.random.uniform(a, b, shape=a.shape)
 
     def proposal_distribution(self, x, y):
-        sigma = mx.array([1])
+        sigma = mx.array([0.01])
         return (1 / mx.sqrt(2 * pi * sigma**2))[0] * mx.exp(
             -0.5 * sum((y - x)**2) / sigma[0] ** 2
         )
 
     def sample_proposal_distribution(self, current, key):
-        sigma = 1
+        sigma = 0.01
         return current + sigma * mx.random.normal(key=key, shape=current.shape)
 
     def acceptance_probability(self, current, proposal):

@@ -7,11 +7,15 @@ from tqdm import tqdm
 mx.random.seed(np.random.randint(0, 1000))
 
 class samplex():
-    def __init__(self, Nwalkers, Ndim):
+    def __init__(self, Nwalkers, Ndim, target_distribution):
 
-        self.x0_array = self.initial_condition(mx.zeros((Nwalkers, Ndim)) - 5, 5.0)
+        self.target_distribution = target_distribution
+        self.Nwalkers = Nwalkers
+        self.Ndim = Ndim
+
+        self.x0_array = self.initial_condition(mx.zeros((self.Nwalkers, self.Ndim)) - 5, 5.0)
         self.key = mx.random.key(1234)
-        self.keys = mx.random.split(self.key, Nwalkers)
+        self.keys = mx.random.split(self.key, self.Nwalkers)
 
     def initial_condition(self, a, b):
         return mx.random.uniform(a, b, shape=a.shape)
@@ -26,15 +30,11 @@ class samplex():
         sigma = 1
         return current + sigma * mx.random.normal(key=key, shape=current.shape)
 
-    def target_distributon(self, x):
-        sigma = mx.array([1])
-        return (1 / mx.sqrt(2 * pi * sigma**2))[0] * mx.exp(-0.5 * sum(x**2) / sigma[0] ** 2)
-
     def acceptance_probability(self, current, proposal):
         prob = (
-            self.target_distributon(proposal)
+            self.target_distribution(proposal)
             * self.proposal_distribution(current, proposal)
-            / (self.target_distributon(current) * self.proposal_distribution(proposal, current))
+            / (self.target_distribution(current) * self.proposal_distribution(proposal, current))
         )
         return mx.minimum(1.0, prob)
 
@@ -62,7 +62,11 @@ if __name__ == "__main__":
     Ndim = 2
     Nsteps = 3000
 
-    sam = samplex(Nwalkers, Ndim)
+    def target_distributon(x):
+        sigma = mx.array([1])
+        return (1 / mx.sqrt(2 * pi * sigma**2))[0] * mx.exp(-0.5 * sum(x**2) / sigma[0] ** 2)
+
+    sam = samplex(Nwalkers, Ndim, target_distributon)
     result = sam.run(Nsteps)
 
     for numwalker in range(Nwalkers):

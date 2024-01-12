@@ -62,11 +62,11 @@ if __name__ == "__main__":
     Ndim = 2
     Nsteps = 3000
 
-    def target_distributon(x):
+    def target_distribution(x):
         sigma = mx.array([1])
         return (1 / mx.sqrt(2 * pi * sigma**2))[0] * mx.exp(-0.5 * sum(x**2) / sigma[0] ** 2)
 
-    sam = samplex(Nwalkers, Ndim, target_distributon)
+    sam = samplex(Nwalkers, Ndim, target_distribution)
     result = sam.run(Nsteps)
 
     for numwalker in range(Nwalkers):

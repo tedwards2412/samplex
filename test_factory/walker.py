@@ -2,6 +2,7 @@ import numpy as np
 import mlx.core as mx
 import matplotlib.pyplot as plt
 from math import pi
+from tqdm import tqdm
 
 mx.random.seed(np.random.randint(0, 1000))
 
@@ -41,11 +42,12 @@ def internal_function(x0, key):
     xcurrent = x0
     states = []
     step_key = mx.random.split(key, len(steps))
-    for numstep, step in enumerate(steps):
+    step_key2 = mx.random.split(step_key[0], len(steps))
+    for step in tqdm(steps):
         states.append(xcurrent)
-        xproposal = sample_proposal_distribution(xcurrent, step_key[numstep])
+        xproposal = sample_proposal_distribution(xcurrent, step_key[step])
         prob = acceptance_probability(xcurrent, xproposal)
-        rand = mx.random.uniform(key=step_key[numstep])
+        rand = mx.random.uniform(key=step_key2[step])
         xcurrent = mx.where(prob > rand, xproposal, xcurrent)
     return states
 

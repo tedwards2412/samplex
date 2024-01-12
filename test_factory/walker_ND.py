@@ -14,18 +14,18 @@ def initial_condition(a, b):
 def proposal_distribution(x, y):
     sigma = mx.array([1])
     return (1 / mx.sqrt(2 * pi * sigma**2))[0] * mx.exp(
-        -0.5 * (y - x) ** 2 / sigma[0] ** 2
+        -0.5 * mx.sum((y - x)**2) / sigma[0] ** 2
     )
 
 
 def sample_proposal_distribution(current, key):
     sigma = 1
-    return current + sigma * mx.random.normal(key=key)
+    return current + sigma * mx.random.normal(key=key, shape=current.shape)
 
 
 def target_distributon(x):
     sigma = mx.array([1])
-    return (1 / mx.sqrt(2 * pi * sigma**2))[0] * mx.exp(-0.5 * x**2 / sigma[0] ** 2)
+    return (1 / mx.sqrt(2 * pi * sigma**2))[0] * mx.exp(-0.5 * mx.sum(x**2) / sigma[0] ** 2)
 
 
 def acceptance_probability(current, proposal):
@@ -53,17 +53,18 @@ def internal_function(x0, key):
 
 
 number_ini = 5
-x0_array = initial_condition(mx.zeros(number_ini) - 5, 5.0)
+ndim = 2
+x0_array = initial_condition(mx.zeros((number_ini, ndim)) - 5, 5.0)
 key = mx.random.key(1234)
 keys = mx.random.split(key, number_ini)
 
 result = mx.vmap(internal_function, in_axes=(0, 0))(x0_array, keys)
-result = np.array(result).T
+result = np.array(result)
 
-plt.figure(figsize=(8, 5))
-bins = mx.linspace(-5, 5, 30)
-bin_centres = bins[:-1] + (bins[1:] - bins[:-1]) / 2
-for i in range(number_ini):
-    plt.hist(result[i], alpha=0.3, bins=bins, density=True)
-plt.plot(np.array(bin_centres), np.array(target_distributon(bin_centres)))
-plt.show()
+# plt.figure(figsize=(8, 5))
+# bins = mx.linspace(-5, 5, 30)
+# bin_centres = bins[:-1] + (bins[1:] - bins[:-1]) / 2
+# for i in range(number_ini):
+#     plt.hist(result[i], alpha=0.3, bins=bins, density=True)
+# plt.plot(np.array(bin_centres), np.array(target_distributon(bin_centres)))
+# plt.show()

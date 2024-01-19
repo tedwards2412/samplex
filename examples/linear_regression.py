@@ -3,6 +3,7 @@ import mlx.core as mx
 import matplotlib.pyplot as plt
 from samplex.samplex import samplex
 from samplex.samplers import MH_Gaussian_sampler
+from samplex.plotting import corner_plot
 
 seed = 1234
 mx.random.seed(seed)
@@ -32,7 +33,7 @@ def generate_data():
 
     logtarget = lambda theta: log_target_distribution(theta, (x, y, err))
 
-    Nwalkers = 2
+    Nwalkers = 10
     Ndim = 2
     Nsteps = 5000
     cov_matrix = mx.array([0.01, 0.01])
@@ -43,36 +44,59 @@ def generate_data():
     sampler = MH_Gaussian_sampler(logtarget)
     sam = samplex(sampler, Nwalkers)
     result = sam.run(Nsteps, x0_array, cov_matrix, jumping_factor)
-    result = np.array(result)
 
-    alpha_range = np.linspace(0.1, 1, Nsteps)
+    result_stacked = np.array(sam.get_chain(discard=1000, flat=True))
+    print(result_stacked.shape)
 
-    for numwalker in range(Nwalkers):
-        plt.scatter(
-            result[:, numwalker, 0], result[:, numwalker, 1], s=10, alpha=alpha_range
-        )
+    names = [
+        r"$m$",
+        r"$c$",
+    ]
+    lims = [
+        [1.8, 2.2],
+        [2.8, 3.2],
+    ]
 
+    fig, axes = corner_plot(
+        data=result_stacked,
+        names=names,
+        num_bins=50,
+        lims=lims,
+        # fig=None,
+        # axes=None,
+    )
     plt.show()
 
-    plt.figure(figsize=(10, 5))
-    plt.errorbar(
-        x.tolist(),
-        y.tolist(),
-        yerr=mx.abs(err).tolist(),
-        fmt=".k",
-        capsize=0,
-        alpha=0.5,
-    )
-    plt.plot(x.tolist(), (m_true * x + c_true).tolist(), "-", color="k", label="truth")
-    plt.plot(
-        x.tolist(),
-        (result[-1, 0, 0] * x + result[-1, 0, 1]).tolist(),
-        "--",
-        color="r",
-        label="MCMC",
-    )
-    plt.legend()
-    plt.show()
+    #############################
+
+    # alpha_range = np.linspace(0.1, 1, Nsteps)
+
+    # for numwalker in range(Nwalkers):
+    #     plt.scatter(
+    #         result[:, numwalker, 0], result[:, numwalker, 1], s=10, alpha=alpha_range
+    #     )
+
+    # plt.show()
+
+    # plt.figure(figsize=(10, 5))
+    # plt.errorbar(
+    #     x.tolist(),
+    #     y.tolist(),
+    #     yerr=mx.abs(err).tolist(),
+    #     fmt=".k",
+    #     capsize=0,
+    #     alpha=0.5,
+    # )
+    # plt.plot(x.tolist(), (m_true * x + c_true).tolist(), "-", color="k", label="truth")
+    # plt.plot(
+    #     x.tolist(),
+    #     (result[-1, 0, 0] * x + result[-1, 0, 1]).tolist(),
+    #     "--",
+    #     color="r",
+    #     label="MCMC",
+    # )
+    # plt.legend()
+    # plt.show()
 
 
 if __name__ == "__main__":

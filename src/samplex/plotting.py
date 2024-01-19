@@ -2,11 +2,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import patches as mpatches
 import matplotlib
-import glob
+
+# import glob
 import scipy.ndimage
 import itertools
-
-plt.style.use("../template.mplstyle")
 
 # purple - green - darkgoldenrod - blue - red
 colors = ["purple", "#306B37", "darkgoldenrod", "#3F7BB6", "#BF4145"]
@@ -54,7 +53,6 @@ def plot_hist(data, ax, num_bins=30, weights=[None], color=None, zorder=None):
         color = "darkblue"
 
     hist, bin_edges, bin_centres = get_hist(data, num_bins=num_bins, weights=weights)
-    ax.plot(bin_centres, hist / max(hist), color=color, lw=1.5, zorder=zorder)
     ax.step(bin_centres, hist / max(hist), where="mid", color=color, zorder=zorder)
     ax.set_ylim(ymax=1.05)
 
@@ -136,7 +134,7 @@ def corner_plot(
             [data[:, pos].min(), data[:, pos].max()] for pos in range(len(data[0, :]))
         ]
     if color is None:
-        color = "black"
+        color = colors[4]
     if labelsize is None:
         labelsize = 18
     if ticksize is None:
@@ -214,190 +212,190 @@ def corner_plot(
 
 ##########################################################################
 
-chains_HST = []
-chains_IllustrisTNG = []
+# chains_HST = []
+# chains_IllustrisTNG = []
 
-for filepath in glob.iglob("../../Data/UVLF_HST_ST_model1/*__*.txt"):
-    data = np.loadtxt(filepath)
-    chains_HST.append(data)
-for filepath in glob.iglob("../../Data/UVLF_IllustrisTNG_ST_model1/*__*.txt"):
-    data = np.loadtxt(filepath)
-    chains_IllustrisTNG.append(data)
+# for filepath in glob.iglob("../../Data/UVLF_HST_ST_model1/*__*.txt"):
+#     data = np.loadtxt(filepath)
+#     chains_HST.append(data)
+# for filepath in glob.iglob("../../Data/UVLF_IllustrisTNG_ST_model1/*__*.txt"):
+#     data = np.loadtxt(filepath)
+#     chains_IllustrisTNG.append(data)
 
-chains_HST = np.vstack(np.array(chains_HST))
-chains_IllustrisTNG = np.vstack(np.array(chains_IllustrisTNG))
+# chains_HST = np.vstack(np.array(chains_HST))
+# chains_IllustrisTNG = np.vstack(np.array(chains_IllustrisTNG))
 
-names = [
-    r"$\sigma_8$",
-    r"$\alpha_*$",
-    r"$\beta_*$",
-    r"$\epsilon_*^\mathrm{s}$",
-    r"$\epsilon_*^\mathrm{i}$",
-    r"$M_c^\mathrm{s}$",
-    r"$M_c^\mathrm{i}$",
-]
-lims = [
-    [0.4, 1.2],
-    [-1.1, -0.2],
-    [0.0, 3.0],
-    [-3.0, 1.0],
-    [-2.8, -1.2],
-    [-3.0, 3.0],
-    [10.5, 12.7],
-]
+# names = [
+#     r"$\sigma_8$",
+#     r"$\alpha_*$",
+#     r"$\beta_*$",
+#     r"$\epsilon_*^\mathrm{s}$",
+#     r"$\epsilon_*^\mathrm{i}$",
+#     r"$M_c^\mathrm{s}$",
+#     r"$M_c^\mathrm{i}$",
+# ]
+# lims = [
+#     [0.4, 1.2],
+#     [-1.1, -0.2],
+#     [0.0, 3.0],
+#     [-3.0, 1.0],
+#     [-2.8, -1.2],
+#     [-3.0, 3.0],
+#     [10.5, 12.7],
+# ]
 
-fig, axes = corner_plot(
-    data=chains_HST[:, [2, 6, 7, 8, 9, 10, 11]],
-    names=names,
-    num_bins=20,
-    weights=chains_HST[:, 0],
-    lims=lims,
-    color=colors[3],
-    labelsize=22,
-    ticksize=None,
-    zorder=1,
-    fig=None,
-    axes=None,
-)
-corner_plot(
-    data=chains_IllustrisTNG[:, [2, 6, 7, 8, 9, 10, 11]],
-    names=names,
-    num_bins=20,
-    weights=chains_IllustrisTNG[:, 0],
-    lims=lims,
-    color=colors[-1],
-    labelsize=22,
-    ticksize=None,
-    zorder=0,
-    fig=fig,
-    axes=axes,
-)
+# fig, axes = corner_plot(
+#     data=chains_HST[:, [2, 6, 7, 8, 9, 10, 11]],
+#     names=names,
+#     num_bins=20,
+#     weights=chains_HST[:, 0],
+#     lims=lims,
+#     color=colors[3],
+#     labelsize=22,
+#     ticksize=None,
+#     zorder=1,
+#     fig=None,
+#     axes=None,
+# )
+# corner_plot(
+#     data=chains_IllustrisTNG[:, [2, 6, 7, 8, 9, 10, 11]],
+#     names=names,
+#     num_bins=20,
+#     weights=chains_IllustrisTNG[:, 0],
+#     lims=lims,
+#     color=colors[-1],
+#     labelsize=22,
+#     ticksize=None,
+#     zorder=0,
+#     fig=fig,
+#     axes=axes,
+# )
 
-patch_blue = mpatches.Patch(color=colors[3], lw=1.5, label=r"$\mathrm{HST}$", alpha=0.8)
-patch_yellow = mpatches.Patch(
-    color=colors[-1], lw=1.5, label=r"$\mathrm{IllustrisTNG}$", alpha=0.8
-)
-plt.legend(
-    handles=[patch_blue, patch_yellow],
-    loc="upper right",
-    bbox_to_anchor=(-0.3, 6.2),
-    prop={"size": 23},
-)
+# patch_blue = mpatches.Patch(color=colors[3], lw=1.5, label=r"$\mathrm{HST}$", alpha=0.8)
+# patch_yellow = mpatches.Patch(
+#     color=colors[-1], lw=1.5, label=r"$\mathrm{IllustrisTNG}$", alpha=0.8
+# )
+# plt.legend(
+#     handles=[patch_blue, patch_yellow],
+#     loc="upper right",
+#     bbox_to_anchor=(-0.3, 6.2),
+#     prop={"size": 23},
+# )
 
-axes[str(6) + str(0)].set_xticks([0.5, 0.7, 0.9, 1.1])
-axes[str(6) + str(0)].set_xticklabels([r"$0.5$", r"$0.7$", r"$0.9$", r"$1.1$"])
-axes[str(6) + str(0)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(4))
-for num in range(7):
-    axes[str(num) + str(0)].set_xticks([0.5, 0.7, 0.9, 1.1])
-    axes[str(num) + str(0)].xaxis.set_minor_locator(
-        matplotlib.ticker.AutoMinorLocator(4)
-    )
+# axes[str(6) + str(0)].set_xticks([0.5, 0.7, 0.9, 1.1])
+# axes[str(6) + str(0)].set_xticklabels([r"$0.5$", r"$0.7$", r"$0.9$", r"$1.1$"])
+# axes[str(6) + str(0)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(4))
+# for num in range(7):
+#     axes[str(num) + str(0)].set_xticks([0.5, 0.7, 0.9, 1.1])
+#     axes[str(num) + str(0)].xaxis.set_minor_locator(
+#         matplotlib.ticker.AutoMinorLocator(4)
+#     )
 
-axes[str(1) + str(0)].set_yticks([-1.0, -0.7, -0.4])
-axes[str(1) + str(0)].set_yticklabels([r"$-1.0$", r"$-0.7$", r"$-0.4$"])
-axes[str(1) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(3))
-axes[str(6) + str(1)].set_xticks([-1.0, -0.7, -0.4])
-axes[str(6) + str(1)].set_xticklabels([r"$-1.0$", r"$-0.7$", r"$-0.4$"])
-axes[str(6) + str(1)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(3))
-for num in range(5):
-    num += 1
-    axes[str(num) + str(1)].set_xticks([-1.0, -0.7, -0.4])
-    axes[str(num) + str(1)].xaxis.set_minor_locator(
-        matplotlib.ticker.AutoMinorLocator(3)
-    )
+# axes[str(1) + str(0)].set_yticks([-1.0, -0.7, -0.4])
+# axes[str(1) + str(0)].set_yticklabels([r"$-1.0$", r"$-0.7$", r"$-0.4$"])
+# axes[str(1) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(3))
+# axes[str(6) + str(1)].set_xticks([-1.0, -0.7, -0.4])
+# axes[str(6) + str(1)].set_xticklabels([r"$-1.0$", r"$-0.7$", r"$-0.4$"])
+# axes[str(6) + str(1)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(3))
+# for num in range(5):
+#     num += 1
+#     axes[str(num) + str(1)].set_xticks([-1.0, -0.7, -0.4])
+#     axes[str(num) + str(1)].xaxis.set_minor_locator(
+#         matplotlib.ticker.AutoMinorLocator(3)
+#     )
 
-axes[str(2) + str(0)].set_yticks([0.4, 1.2, 2.0, 2.8])
-axes[str(2) + str(0)].set_yticklabels([r"$0.4$", r"$1.2$", r"$2.0$", r"$2.8$"])
-axes[str(2) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(4))
-axes[str(6) + str(2)].set_xticks([0.4, 1.2, 2.0, 2.8])
-axes[str(6) + str(2)].set_xticklabels([r"$0.4$", r"$1.2$", r"$2.0$", r"$2.8$"])
-axes[str(6) + str(2)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(4))
-for num in range(4):
-    num += 2
-    axes[str(num) + str(2)].set_xticks([0.4, 1.2, 2.0, 2.8])
-    axes[str(num) + str(2)].xaxis.set_minor_locator(
-        matplotlib.ticker.AutoMinorLocator(4)
-    )
-for num in range(2):
-    axes[str(2) + str(num)].set_yticks([0.4, 1.2, 2.0, 2.8])
-    axes[str(2) + str(num)].yaxis.set_minor_locator(
-        matplotlib.ticker.AutoMinorLocator(4)
-    )
+# axes[str(2) + str(0)].set_yticks([0.4, 1.2, 2.0, 2.8])
+# axes[str(2) + str(0)].set_yticklabels([r"$0.4$", r"$1.2$", r"$2.0$", r"$2.8$"])
+# axes[str(2) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(4))
+# axes[str(6) + str(2)].set_xticks([0.4, 1.2, 2.0, 2.8])
+# axes[str(6) + str(2)].set_xticklabels([r"$0.4$", r"$1.2$", r"$2.0$", r"$2.8$"])
+# axes[str(6) + str(2)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(4))
+# for num in range(4):
+#     num += 2
+#     axes[str(num) + str(2)].set_xticks([0.4, 1.2, 2.0, 2.8])
+#     axes[str(num) + str(2)].xaxis.set_minor_locator(
+#         matplotlib.ticker.AutoMinorLocator(4)
+#     )
+# for num in range(2):
+#     axes[str(2) + str(num)].set_yticks([0.4, 1.2, 2.0, 2.8])
+#     axes[str(2) + str(num)].yaxis.set_minor_locator(
+#         matplotlib.ticker.AutoMinorLocator(4)
+#     )
 
-axes[str(3) + str(0)].set_yticks([-2.5, -1.5, -0.5, 0.5])
-axes[str(3) + str(0)].set_yticklabels([r"$-2.5$", r"$-1.5$", r"$-0.5$", r"$0.5$"])
-axes[str(3) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
-axes[str(6) + str(3)].set_xticks([-2.5, -1.5, -0.5, 0.5])
-axes[str(6) + str(3)].set_xticklabels([r"$-2.5$", r"$-1.5$", r"$-0.5$", r"$0.5$"])
-axes[str(6) + str(3)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
-for num in range(3):
-    num += 3
-    axes[str(num) + str(3)].set_xticks([-2.5, -1.5, -0.5, 0.5])
-    axes[str(num) + str(3)].xaxis.set_minor_locator(
-        matplotlib.ticker.AutoMinorLocator(5)
-    )
-for num in range(3):
-    axes[str(3) + str(num)].set_yticks([-2.5, -1.5, -0.5, 0.5])
-    axes[str(3) + str(num)].yaxis.set_minor_locator(
-        matplotlib.ticker.AutoMinorLocator(5)
-    )
+# axes[str(3) + str(0)].set_yticks([-2.5, -1.5, -0.5, 0.5])
+# axes[str(3) + str(0)].set_yticklabels([r"$-2.5$", r"$-1.5$", r"$-0.5$", r"$0.5$"])
+# axes[str(3) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
+# axes[str(6) + str(3)].set_xticks([-2.5, -1.5, -0.5, 0.5])
+# axes[str(6) + str(3)].set_xticklabels([r"$-2.5$", r"$-1.5$", r"$-0.5$", r"$0.5$"])
+# axes[str(6) + str(3)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
+# for num in range(3):
+#     num += 3
+#     axes[str(num) + str(3)].set_xticks([-2.5, -1.5, -0.5, 0.5])
+#     axes[str(num) + str(3)].xaxis.set_minor_locator(
+#         matplotlib.ticker.AutoMinorLocator(5)
+#     )
+# for num in range(3):
+#     axes[str(3) + str(num)].set_yticks([-2.5, -1.5, -0.5, 0.5])
+#     axes[str(3) + str(num)].yaxis.set_minor_locator(
+#         matplotlib.ticker.AutoMinorLocator(5)
+#     )
 
-axes[str(4) + str(0)].set_yticks([-2.5, -2.0, -1.5])
-axes[str(4) + str(0)].set_yticklabels([r"$-2.5$", r"$-2.0$", r"$-1.5$"])
-axes[str(4) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
-axes[str(6) + str(4)].set_xticks([-2.5, -2.0, -1.5])
-axes[str(6) + str(4)].set_xticklabels([r"$-2.5$", r"$-2.0$", r"$-1.5$"])
-axes[str(6) + str(4)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
-for num in range(2):
-    num += 4
-    axes[str(num) + str(4)].set_xticks([-2.5, -2.0, -1.5])
-    axes[str(num) + str(4)].xaxis.set_minor_locator(
-        matplotlib.ticker.AutoMinorLocator(5)
-    )
-for num in range(4):
-    axes[str(4) + str(num)].set_yticks([-2.5, -2.0, -1.5])
-    axes[str(4) + str(num)].yaxis.set_minor_locator(
-        matplotlib.ticker.AutoMinorLocator(5)
-    )
+# axes[str(4) + str(0)].set_yticks([-2.5, -2.0, -1.5])
+# axes[str(4) + str(0)].set_yticklabels([r"$-2.5$", r"$-2.0$", r"$-1.5$"])
+# axes[str(4) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
+# axes[str(6) + str(4)].set_xticks([-2.5, -2.0, -1.5])
+# axes[str(6) + str(4)].set_xticklabels([r"$-2.5$", r"$-2.0$", r"$-1.5$"])
+# axes[str(6) + str(4)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
+# for num in range(2):
+#     num += 4
+#     axes[str(num) + str(4)].set_xticks([-2.5, -2.0, -1.5])
+#     axes[str(num) + str(4)].xaxis.set_minor_locator(
+#         matplotlib.ticker.AutoMinorLocator(5)
+#     )
+# for num in range(4):
+#     axes[str(4) + str(num)].set_yticks([-2.5, -2.0, -1.5])
+#     axes[str(4) + str(num)].yaxis.set_minor_locator(
+#         matplotlib.ticker.AutoMinorLocator(5)
+#     )
 
-axes[str(5) + str(0)].set_yticks([-2.0, 0.0, 2.0])
-axes[str(5) + str(0)].set_yticklabels([r"$-2$", r"$0$", r"$2$"])
-axes[str(5) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(4))
-axes[str(6) + str(5)].set_xticks([-2.0, 0.0, 2.0])
-axes[str(6) + str(5)].set_xticklabels([r"$-2$", r"$0$", r"$2$"])
-axes[str(6) + str(5)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(4))
-for num in range(1):
-    num += 5
-    axes[str(num) + str(5)].set_xticks([-2.0, 0.0, 2.0])
-    axes[str(num) + str(5)].xaxis.set_minor_locator(
-        matplotlib.ticker.AutoMinorLocator(4)
-    )
-for num in range(5):
-    axes[str(5) + str(num)].set_yticks([-2.0, 0.0, 2.0])
-    axes[str(5) + str(num)].yaxis.set_minor_locator(
-        matplotlib.ticker.AutoMinorLocator(4)
-    )
+# axes[str(5) + str(0)].set_yticks([-2.0, 0.0, 2.0])
+# axes[str(5) + str(0)].set_yticklabels([r"$-2$", r"$0$", r"$2$"])
+# axes[str(5) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(4))
+# axes[str(6) + str(5)].set_xticks([-2.0, 0.0, 2.0])
+# axes[str(6) + str(5)].set_xticklabels([r"$-2$", r"$0$", r"$2$"])
+# axes[str(6) + str(5)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(4))
+# for num in range(1):
+#     num += 5
+#     axes[str(num) + str(5)].set_xticks([-2.0, 0.0, 2.0])
+#     axes[str(num) + str(5)].xaxis.set_minor_locator(
+#         matplotlib.ticker.AutoMinorLocator(4)
+#     )
+# for num in range(5):
+#     axes[str(5) + str(num)].set_yticks([-2.0, 0.0, 2.0])
+#     axes[str(5) + str(num)].yaxis.set_minor_locator(
+#         matplotlib.ticker.AutoMinorLocator(4)
+#     )
 
-axes[str(6) + str(0)].set_yticks([10.5, 11.5, 12.5])
-axes[str(6) + str(0)].set_yticklabels([r"$10.5$", r"$11.5$", r"$12.5$"])
-axes[str(6) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
-axes[str(6) + str(6)].set_xticks([10.5, 11.5, 12.5])
-axes[str(6) + str(6)].set_xticklabels([r"$10.5$", r"$11.5$", r"$12.5$"])
-axes[str(6) + str(6)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
-for num in range(6):
-    axes[str(6) + str(num)].set_yticks([10.5, 11.5, 12.5])
-    axes[str(6) + str(num)].yaxis.set_minor_locator(
-        matplotlib.ticker.AutoMinorLocator(5)
-    )
+# axes[str(6) + str(0)].set_yticks([10.5, 11.5, 12.5])
+# axes[str(6) + str(0)].set_yticklabels([r"$10.5$", r"$11.5$", r"$12.5$"])
+# axes[str(6) + str(0)].yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
+# axes[str(6) + str(6)].set_xticks([10.5, 11.5, 12.5])
+# axes[str(6) + str(6)].set_xticklabels([r"$10.5$", r"$11.5$", r"$12.5$"])
+# axes[str(6) + str(6)].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
+# for num in range(6):
+#     axes[str(6) + str(num)].set_yticks([10.5, 11.5, 12.5])
+#     axes[str(6) + str(num)].yaxis.set_minor_locator(
+#         matplotlib.ticker.AutoMinorLocator(5)
+#     )
 
-for num, ax in enumerate(fig.get_axes()):
-    ax.tick_params(axis="both", which="major", labelsize=17)
-    ax.tick_params(axis="both", which="minor", labelsize=17)
-    for axis in ["top", "bottom", "left", "right"]:
-        ax.spines[axis].set_linewidth(1.5)
+# for num, ax in enumerate(fig.get_axes()):
+#     ax.tick_params(axis="both", which="major", labelsize=17)
+#     ax.tick_params(axis="both", which="minor", labelsize=17)
+#     for axis in ["top", "bottom", "left", "right"]:
+#         ax.spines[axis].set_linewidth(1.5)
 
-fig.set_size_inches(14, 14)
-fig.tight_layout()
-fig.subplots_adjust(wspace=0.1, hspace=0.1)
+# fig.set_size_inches(14, 14)
+# fig.tight_layout()
+# fig.subplots_adjust(wspace=0.1, hspace=0.1)
 
-plt.savefig("Posteriors_astro_model1.pdf")
+# plt.savefig("Posteriors_astro_model1.pdf")

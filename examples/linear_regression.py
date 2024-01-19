@@ -32,7 +32,9 @@ def generate_data():
     Nsteps = 5000
 
     sam = samplex(Nwalkers, Ndim, logL)
-    result = sam.run(Nsteps)
+    cov_matrix = mx.array([0.01, 0.01])
+    jumping_factor = 1.0
+    result = sam.run(Nsteps, cov_matrix, jumping_factor)
     alpha_range = np.linspace(0.1, 1, Nsteps)
 
     for numwalker in range(Nwalkers):

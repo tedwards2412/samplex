@@ -2,9 +2,14 @@ import numpy as np
 import mlx.core as mx
 import matplotlib.pyplot as plt
 from samplex.samplex import samplex
+from samplex.samplers import MH_Gaussian_sampler
 
 seed = 1234
 mx.random.seed(seed)
+
+
+def initial_condition(a, b):
+    return mx.random.uniform(a, b, shape=a.shape)
 
 
 def generate_data():
@@ -16,7 +21,7 @@ def generate_data():
     err = mx.random.normal(x.shape) * 10
     y = m_true * x + c_true + err
 
-    def logLikelihood(theta, data):
+    def log_target_distribution(theta, data):
         m, c = theta
         x, y, sigma = data
         model = m * x + c
@@ -25,16 +30,21 @@ def generate_data():
             -0.5 * (residual**2 / sigma**2)
         )  # + mx.log(mx.sqrt(2 * pi * sigma**2)))
 
-    logL = lambda theta: logLikelihood(theta, (x, y, err))
+    logtarget = lambda theta: log_target_distribution(theta, (x, y, err))
 
     Nwalkers = 2
     Ndim = 2
     Nsteps = 5000
-
-    sam = samplex(Nwalkers, Ndim, logL)
     cov_matrix = mx.array([0.01, 0.01])
     jumping_factor = 1.0
-    result = sam.run(Nsteps, cov_matrix, jumping_factor)
+
+    x0_array = initial_condition(mx.zeros((Nwalkers, Ndim)) + 1, 5.0)
+
+    sampler = MH_Gaussian_sampler(logtarget)
+    sam = samplex(sampler, Nwalkers)
+    result = sam.run(Nsteps, x0_array, cov_matrix, jumping_factor)
+    result = np.array(result)
+
     alpha_range = np.linspace(0.1, 1, Nsteps)
 
     for numwalker in range(Nwalkers):

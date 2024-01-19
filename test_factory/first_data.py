@@ -2,7 +2,6 @@ import numpy as np
 import mlx.core as mx
 import matplotlib.pyplot as plt
 from walker_ND import samplex
-from math import pi
 
 
 def generate_data():
@@ -19,8 +18,10 @@ def generate_data():
         x, y, sigma = data
         model = m * x + c
         residual = y - model
-        return sum(-0.5 * (residual**2 / sigma ** 2)) # + mx.log(mx.sqrt(2 * pi * sigma**2)))
-    
+        return sum(
+            -0.5 * (residual**2 / sigma**2)
+        )  # + mx.log(mx.sqrt(2 * pi * sigma**2)))
+
     logL = lambda theta: logLikelihood(theta, (x, y, err))
 
     Nwalkers = 2
@@ -32,7 +33,9 @@ def generate_data():
     alpha_range = np.linspace(0.1, 1, Nsteps)
 
     for numwalker in range(Nwalkers):
-        plt.scatter(result[:,numwalker,0], result[:,numwalker,1], s=10, alpha=alpha_range)
+        plt.scatter(
+            result[:, numwalker, 0], result[:, numwalker, 1], s=10, alpha=alpha_range
+        )
 
     plt.show()
 
@@ -46,7 +49,13 @@ def generate_data():
         alpha=0.5,
     )
     plt.plot(x.tolist(), (m_true * x + c_true).tolist(), "-", color="k", label="truth")
-    plt.plot(x.tolist(), (result[-1,0,0] * x + result[-1,0,1]).tolist(), "--", color="r", label="MCMC")
+    plt.plot(
+        x.tolist(),
+        (result[-1, 0, 0] * x + result[-1, 0, 1]).tolist(),
+        "--",
+        color="r",
+        label="MCMC",
+    )
     plt.legend()
     plt.show()
 

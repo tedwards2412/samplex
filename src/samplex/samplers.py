@@ -38,19 +38,23 @@ class MH_Gaussian_sampler:
         )
         return mx.minimum(0.0, prob)
 
+    def single_step(self, state, step_key, step_key2, cov_matrix, jumping_factor):
+        xproposal = self.sample_proposal_distribution(
+            state, cov_matrix, step_key, jumping_factor
+        )
+        prob = self.acceptance_probability(state, xproposal, cov_matrix, jumping_factor)
+        rand = mx.random.uniform(key=step_key2)
+        new_state = mx.where(prob > mx.log(rand), xproposal, state)
+        return new_state
+
     def step_walker(self, x0, key, steps, cov_matrix, jumping_factor):
-        xcurrent = x0
+        state = x0
         states = []
         step_key = mx.random.split(key, len(steps))
         step_key2 = mx.random.split(step_key[0], len(steps))
         for step in tqdm(steps):
-            states.append(xcurrent)
-            xproposal = self.sample_proposal_distribution(
-                xcurrent, cov_matrix, step_key[step], jumping_factor
+            states.append(state)
+            state = self.single_step(
+                state, step_key[step], step_key2[step], cov_matrix, jumping_factor
             )
-            prob = self.acceptance_probability(
-                xcurrent, xproposal, cov_matrix, jumping_factor
-            )
-            rand = mx.random.uniform(key=step_key2[step])
-            xcurrent = mx.where(prob > mx.log(rand), xproposal, xcurrent)
         return states

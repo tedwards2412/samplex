@@ -64,8 +64,10 @@ def generate_data():
     fig, axes = corner_plot(
         data=result_stacked,
         names=names,
-        num_bins=50,
+        num_bins=[50, 50, 20],
         lims=lims,
+        # interpolation_smoothing=2.0,
+        # gaussian_smoothing=0.01
         # fig=None,
         # axes=None,
     )
@@ -81,14 +83,27 @@ def generate_data():
     plt.show()
 
     plt.figure(figsize=(10, 5))
+    # plt.errorbar(
+    #     x.tolist(),
+    #     y.tolist(),
+    #     yerr=mx.abs(err).tolist(),
+    #     fmt=".k",
+    #     capsize=0,
+    #     alpha=0.5,
+    # )
     plt.errorbar(
         x.tolist(),
         y.tolist(),
         yerr=mx.abs(err).tolist(),
-        fmt=".k",
-        capsize=0,
-        alpha=0.5,
+        ls="None",
+        marker=".",
+        markersize=5,
+        markeredgewidth=1.5,
+        elinewidth=1.5,
+        color="black",
+        zorder=0,
     )
+
     plt.plot(
         x.tolist(),
         (b_true * x**2 + m_true * x + c_true).tolist(),

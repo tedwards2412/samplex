@@ -1,7 +1,11 @@
+import os
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib import patches as mpatches
-import matplotlib
+
+# from matplotlib import patches as mpatches
+plt.style.use(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "template.mplstyle")
+)
 
 # import glob
 import scipy.ndimage
@@ -26,7 +30,7 @@ def ctr_level2d(histogram2d, lvl, infinite=False):
     return clist
 
 
-def get_hist(data, num_bins=40, weights=[None]):
+def get_hist(data, num_bins=30, weights=[None]):
     if not any(weights):
         weights = np.ones(len(data))
     hist, bin_edges = np.histogram(data, bins=num_bins, weights=weights)
@@ -34,7 +38,7 @@ def get_hist(data, num_bins=40, weights=[None]):
     return hist, bin_edges, bin_centres
 
 
-def get_hist2d(datax, datay, num_bins=40, weights=[None]):
+def get_hist2d(datax, datay, num_bins=[30, 30], weights=[None]):
     if not any(weights):
         weights = np.ones(len(datax))
     hist, bin_edgesx, bin_edgesy = np.histogram2d(
@@ -42,8 +46,31 @@ def get_hist2d(datax, datay, num_bins=40, weights=[None]):
     )
     bin_centresx = 0.5 * (bin_edgesx[1:] + bin_edgesx[:-1])
     bin_centresy = 0.5 * (bin_edgesy[1:] + bin_edgesy[:-1])
-
-    return hist, bin_edgesx, bin_edgesy, bin_centresx, bin_centresy
+    hist2 = hist.min() + np.zeros((hist.shape[0] + 4, hist.shape[1] + 4))
+    hist2[2:-2, 2:-2] = hist
+    hist2[2:-2, 1] = hist[:, 0]
+    hist2[2:-2, -2] = hist[:, -1]
+    hist2[1, 2:-2] = hist[0]
+    hist2[-2, 2:-2] = hist[-1]
+    hist2[1, 1] = hist[0, 0]
+    hist2[1, -2] = hist[0, -1]
+    hist2[-2, 1] = hist[-1, 0]
+    hist2[-2, -2] = hist[-1, -1]
+    bin_centresx2 = np.concatenate(
+        [
+            bin_centresx[0] + np.array([-2, -1]) * np.diff(bin_centresx[:2]),
+            bin_centresx,
+            bin_centresx[-1] + np.array([1, 2]) * np.diff(bin_centresx[-2:]),
+        ]
+    )
+    bin_centresy2 = np.concatenate(
+        [
+            bin_centresy[0] + np.array([-2, -1]) * np.diff(bin_centresy[:2]),
+            bin_centresy,
+            bin_centresy[-1] + np.array([1, 2]) * np.diff(bin_centresy[-2:]),
+        ]
+    )
+    return hist2, bin_edgesx, bin_edgesy, bin_centresx2, bin_centresy2
 
 
 def plot_hist(data, ax, num_bins=30, weights=[None], color=None, zorder=None):
@@ -69,7 +96,17 @@ def adjust_lightness(color, amount=0.5):
     return colorsys.hls_to_rgb(c[0], max(0, min(1, amount * c[1])), c[2])
 
 
-def plot_hist2d(datax, datay, ax, num_bins=30, weights=[None], color=None, zorder=0):
+def plot_hist2d(
+    datax,
+    datay,
+    ax,
+    num_bins=[30, 30],
+    weights=[None],
+    color=None,
+    zorder=0,
+    interpolation_smoothing=3.0,
+    gaussian_smoothing=0.5,
+):
     if not any(weights):
         weights = np.ones(len(datax))
     if color == None:
@@ -79,8 +116,6 @@ def plot_hist2d(datax, datay, ax, num_bins=30, weights=[None], color=None, zorde
         datax, datay, num_bins=num_bins, weights=weights
     )
 
-    interpolation_smoothing = 3.0
-    gaussian_smoothing = 0.5
     sigma = interpolation_smoothing * gaussian_smoothing
 
     interp_y_centers = scipy.ndimage.zoom(
@@ -117,7 +152,7 @@ def plot_hist2d(datax, datay, ax, num_bins=30, weights=[None], color=None, zorde
 def corner_plot(
     data,
     names,
-    num_bins=30,
+    num_bins=[None],
     weights=[None],
     lims=[None],
     color=None,
@@ -126,13 +161,20 @@ def corner_plot(
     zorder=None,
     fig=None,
     axes=None,
+    interpolation_smoothing=3.0,
+    gaussian_smoothing=0.5,
 ):
+    size = len(data[0, :])
+    positions = list(itertools.combinations(range(size), 2))
+
     if not any(weights):
         weights = np.ones(len(data[:, 0]))
     if not any(lims):
         lims = [
             [data[:, pos].min(), data[:, pos].max()] for pos in range(len(data[0, :]))
         ]
+    if not any(num_bins):
+        num_bins = [30] * size
     if color is None:
         color = colors[4]
     if labelsize is None:
@@ -141,9 +183,6 @@ def corner_plot(
         ticksize = 16
     if zorder is None:
         zorder = 0
-
-    size = len(data[0, :])
-    positions = list(itertools.combinations(range(size), 2))
 
     new_fig = False
     if fig is None:
@@ -184,7 +223,17 @@ def corner_plot(
         else:
             ax = axes[str(posx) + str(posy)]
 
-        plot_hist2d(datay, datax, ax, num_bins, weights, color, zorder)
+        plot_hist2d(
+            datay,
+            datax,
+            ax,
+            [num_bins[posy], num_bins[posx]],
+            weights,
+            color,
+            zorder,
+            interpolation_smoothing,
+            gaussian_smoothing,
+        )
 
     # 1D posteriors
     for pos in range(size):
@@ -205,7 +254,7 @@ def corner_plot(
         else:
             ax = axes[str(pos) + str(pos)]
 
-        plot_hist(data[:, pos], ax, num_bins, weights, color, zorder)
+        plot_hist(data[:, pos], ax, num_bins[pos], weights, color, zorder)
 
     return fig, axes
 

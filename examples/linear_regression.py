@@ -14,6 +14,8 @@ def initial_condition(a, b):
 
 
 def generate_data():
+    mx.set_default_device(mx.cpu)
+    # mx.set_default_device(mx.gpu)
     # Parameters we are trying to infer
     m_true = 2.0
     c_true = 3.0
@@ -34,9 +36,9 @@ def generate_data():
 
     logtarget = lambda theta: log_target_distribution(theta, (x, y, err))
 
-    Nwalkers = 256
+    Nwalkers = 32
     Ndim = 3
-    Nsteps = 5_000
+    Nsteps = 10_000
     cov_matrix = mx.array([0.01, 0.01, 0.01])
     jumping_factor = 1.0
 
@@ -46,7 +48,8 @@ def generate_data():
     sam = samplex(sampler, Nwalkers)
     result = sam.run(Nsteps, x0_array, cov_matrix, jumping_factor)
     # Should be (Nsteps, Nwalkers, Ndim)
-    print(result.shape)
+    # print(result[0])
+    # quit()
     result_stacked = np.array(sam.get_chain(discard=1000, flat=True))
 
     names = [

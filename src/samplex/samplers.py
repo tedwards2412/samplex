@@ -1,5 +1,6 @@
 import mlx.core as mx
 from tqdm import tqdm
+import numpy as np
 
 
 class MH_Gaussian_sampler:
@@ -7,8 +8,8 @@ class MH_Gaussian_sampler:
         self.log_target_distribution = log_target_distribution
 
     def initialize_chains(self, theta_ini):
-        minuslogLs = mx.vmap(self.log_target_distribution)(theta_ini)
-        return [mx.concatenate([minuslogLs.reshape(-1, 1), theta_ini], axis=1)]
+        minuslogLs = [-1.0 * mx.vmap(self.log_target_distribution)(theta_ini)]
+        return minuslogLs, [theta_ini]
 
     def proposal_distribution(self, x, y, cov_matrix, jumping_factor=1.0):
         sigma = jumping_factor * cov_matrix
@@ -24,15 +25,17 @@ class MH_Gaussian_sampler:
         return current + sigma * mx.random.normal(key=key, shape=current.shape)
 
     def acceptance_probability(self, current, proposal, cov_matrix, jumping_factor=1.0):
+        log_target_p = self.log_target_distribution(proposal)
+        log_target_c = self.log_target_distribution(current)
         prob = (
-            self.log_target_distribution(proposal)
+            log_target_p
             + mx.log(
                 self.proposal_distribution(
                     current, proposal, cov_matrix, jumping_factor
                 )
             )
             - (
-                self.log_target_distribution(current)
+                log_target_c
                 + mx.log(
                     self.proposal_distribution(
                         proposal, current, cov_matrix, jumping_factor
@@ -40,41 +43,58 @@ class MH_Gaussian_sampler:
                 )
             )
         )
-        return mx.minimum(0.0, prob)
+        return mx.minimum(0.0, prob), log_target_p, log_target_c
 
     def single_step(self, state, step_key, step_key2, cov_matrix, jumping_factor):
         xproposal = self.sample_proposal_distribution(
             state, cov_matrix, step_key, jumping_factor
         )
-        prob = self.acceptance_probability(state, xproposal, cov_matrix, jumping_factor)
+        prob, log_target_p, log_target_c = self.acceptance_probability(
+            state, xproposal, cov_matrix, jumping_factor
+        )
         rand = mx.random.uniform(key=step_key2)
         new_state = mx.where(
             prob > mx.log(rand),
-            mx.concatenate(
-                [self.log_target_distribution(xproposal).reshape(1), xproposal]
-            ),
-            mx.concatenate([self.log_target_distribution(state).reshape(1), state]),
+            xproposal,
+            state,
         )
-        return new_state
+        logL = mx.where(
+            prob > mx.log(rand),
+            -1.0 * log_target_p,
+            -1.0 * log_target_c,
+        )
+        return logL, new_state
 
     def step_walker(self, current_state, key, cov_matrix, jumping_factor):
         prob_keys = mx.random.split(key, 2)
         new_state = self.single_step(
             current_state, prob_keys[0], prob_keys[1], cov_matrix, jumping_factor
         )
-        return new_state
+        return new_state[0], new_state[1]
 
     def run(self, Nsteps, key, theta_ini, cov_matrix, jumping_factor):
-        chains = self.initialize_chains(theta_ini)
-        steps = mx.arange(Nsteps - 1)
+        logLs, chains = self.initialize_chains(theta_ini)
+        steps = mx.arange(Nsteps)
         keys = mx.random.split(key, Nsteps)
         for step in tqdm(steps):
             keys_walkers = mx.random.split(keys[step], theta_ini.shape[0])
-            new_state = mx.vmap(self.step_walker, in_axes=(0, 0, None, None))(
-                chains[-1][:, 1:],  # 0th element is -logL
+            new_logLs, new_state = mx.vmap(
+                self.step_walker, in_axes=(0, 0, None, None)
+            )(
+                chains[-1],  # 0th element is -logL
                 keys_walkers,
                 cov_matrix,
                 jumping_factor,
             )
+            mx.eval(new_logLs)
+            mx.eval(new_state)
             chains.append(new_state)
-        return mx.array(chains)
+            logLs.append(new_logLs)
+
+        return mx.concatenate(
+            [
+                mx.array(logLs).reshape(Nsteps + 1, theta_ini.shape[0], 1),
+                mx.array(chains),
+            ],
+            axis=-1,
+        )

@@ -45,8 +45,8 @@ def generate_data():
     sampler = MH_Gaussian_sampler(logtarget)
     sam = samplex(sampler, Nwalkers)
     result = sam.run(Nsteps, x0_array, cov_matrix, jumping_factor)
+    # Should be (Nsteps, Nwalkers, Ndim)
     print(result.shape)
-    print(result)
 
     result_stacked = np.array(sam.get_chain(discard=100, flat=True))
 

@@ -14,11 +14,15 @@ class samplex:
         self.chains = None
 
     def run(self, Nsteps, theta_ini, cov_matrix, jumping_factor):
-        steps = mx.arange(Nsteps)
-        chains = mx.vmap(self.sampler.step_walker, in_axes=(0, 0, None, None, None))(
-            theta_ini, self.keys, steps, cov_matrix, mx.array([jumping_factor])
+        # steps = mx.arange(Nsteps)
+        # chains = mx.vmap(self.sampler.step_walker, in_axes=(0, 0, None, None, None))(
+        #     theta_ini, self.keys, steps, cov_matrix, mx.array([jumping_factor])
+        # )
+        # self.chains = mx.array(chains)
+        self.chains = self.sampler.run(
+            Nsteps, self.key, theta_ini, cov_matrix, mx.array([jumping_factor])
         )
-        self.chains = mx.array(chains)
+        # print(self.chains.shape)
 
         return self.chains
 

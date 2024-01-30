@@ -47,14 +47,24 @@ class MH_Gaussian_sampler:
         new_state = mx.where(prob > mx.log(rand), xproposal, state)
         return new_state
 
-    def step_walker(self, x0, key, steps, cov_matrix, jumping_factor):
-        state = x0
-        states = []
-        step_key = mx.random.split(key, len(steps))
-        step_key2 = mx.random.split(step_key[0], len(steps))
+    def step_walker(self, current_state, key, cov_matrix, jumping_factor):
+        prob_keys = mx.random.split(key, 2)
+        new_state = self.single_step(
+            current_state, prob_keys[0], prob_keys[1], cov_matrix, jumping_factor
+        )
+        return new_state
+
+    def run(self, Nsteps, key, theta_ini, cov_matrix, jumping_factor):
+        steps = mx.arange(Nsteps)
+        chains = [theta_ini]
+        keys = mx.random.split(key, Nsteps)
         for step in tqdm(steps):
-            states.append(state)
-            state = self.single_step(
-                state, step_key[step], step_key2[step], cov_matrix, jumping_factor
+            keys_walkers = mx.random.split(keys[step], theta_ini.shape[0])
+            new_state = mx.vmap(self.step_walker, in_axes=(0, 0, None, None))(
+                chains[-1],
+                keys_walkers,
+                cov_matrix,
+                jumping_factor,
             )
-        return states
+            chains.append(new_state)
+        return mx.array(chains)

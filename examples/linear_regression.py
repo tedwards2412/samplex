@@ -48,7 +48,7 @@ def generate_data():
     # Should be (Nsteps, Nwalkers, Ndim)
     print(result.shape)
 
-    result_stacked = np.array(sam.get_chain(discard=100, flat=True))
+    result_stacked = np.array(sam.get_chain(discard=1000, flat=True))
 
     names = [
         r"$m$",

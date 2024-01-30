@@ -1,7 +1,5 @@
 import numpy as np
 import mlx.core as mx
-from samplex.plotting import corner_plot
-from tqdm import tqdm
 
 
 class samplex:

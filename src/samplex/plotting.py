@@ -1,15 +1,12 @@
 import os
 import numpy as np
 from matplotlib import pyplot as plt
+import scipy.ndimage
+import itertools
 
-# from matplotlib import patches as mpatches
 plt.style.use(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "template.mplstyle")
 )
-
-# import glob
-import scipy.ndimage
-import itertools
 
 # purple - green - darkgoldenrod - blue - red
 colors = ["purple", "#306B37", "darkgoldenrod", "#3F7BB6", "#BF4145"]

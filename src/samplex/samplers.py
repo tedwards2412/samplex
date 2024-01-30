@@ -6,6 +6,10 @@ class MH_Gaussian_sampler:
     def __init__(self, log_target_distribution):
         self.log_target_distribution = log_target_distribution
 
+    def initialize_chains(self, theta_ini):
+        minuslogLs = mx.vmap(self.log_target_distribution)(theta_ini)
+        return [mx.concatenate([minuslogLs.reshape(-1, 1), theta_ini], axis=1)]
+
     def proposal_distribution(self, x, y, cov_matrix, jumping_factor=1.0):
         sigma = jumping_factor * cov_matrix
         return sum(
@@ -44,7 +48,13 @@ class MH_Gaussian_sampler:
         )
         prob = self.acceptance_probability(state, xproposal, cov_matrix, jumping_factor)
         rand = mx.random.uniform(key=step_key2)
-        new_state = mx.where(prob > mx.log(rand), xproposal, state)
+        new_state = mx.where(
+            prob > mx.log(rand),
+            mx.concatenate(
+                [self.log_target_distribution(xproposal).reshape(1), xproposal]
+            ),
+            mx.concatenate([self.log_target_distribution(state).reshape(1), state]),
+        )
         return new_state
 
     def step_walker(self, current_state, key, cov_matrix, jumping_factor):
@@ -55,13 +65,13 @@ class MH_Gaussian_sampler:
         return new_state
 
     def run(self, Nsteps, key, theta_ini, cov_matrix, jumping_factor):
-        steps = mx.arange(Nsteps)
-        chains = [theta_ini]
+        chains = self.initialize_chains(theta_ini)
+        steps = mx.arange(Nsteps - 1)
         keys = mx.random.split(key, Nsteps)
         for step in tqdm(steps):
             keys_walkers = mx.random.split(keys[step], theta_ini.shape[0])
             new_state = mx.vmap(self.step_walker, in_axes=(0, 0, None, None))(
-                chains[-1],
+                chains[-1][:, 1:],  # 0th element is -logL
                 keys_walkers,
                 cov_matrix,
                 jumping_factor,

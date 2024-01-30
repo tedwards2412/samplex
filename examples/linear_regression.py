@@ -47,7 +47,6 @@ def generate_data():
     result = sam.run(Nsteps, x0_array, cov_matrix, jumping_factor)
     # Should be (Nsteps, Nwalkers, Ndim)
     print(result.shape)
-
     result_stacked = np.array(sam.get_chain(discard=1000, flat=True))
 
     names = [
@@ -62,7 +61,7 @@ def generate_data():
     ]
 
     fig, axes = corner_plot(
-        data=result_stacked,
+        data=result_stacked[:, 1:],
         names=names,
         num_bins=[50, 50, 20],
         lims=lims,
@@ -77,7 +76,7 @@ def generate_data():
 
     for numwalker in range(Nwalkers):
         plt.scatter(
-            result[:, numwalker, 0], result[:, numwalker, 1], s=10, alpha=alpha_range
+            result[:, numwalker, 1], result[:, numwalker, 2], s=10, alpha=alpha_range
         )
 
     plt.show()
@@ -113,7 +112,7 @@ def generate_data():
     )
     plt.plot(
         x.tolist(),
-        (result[-1, 0, 2] * x**2 + result[-1, 0, 0] * x + result[-1, 0, 1]).tolist(),
+        (result[-1, 0, 3] * x**2 + result[-1, 0, 1] * x + result[-1, 0, 2]).tolist(),
         "--",
         color="r",
         label="MCMC",

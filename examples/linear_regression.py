@@ -19,7 +19,7 @@ def generate_data():
     c_true = 3.0
     b_true = 1.0
 
-    x = mx.linspace(-5, 5, 100)
+    x = mx.linspace(-5, 5, 20)
     err = mx.random.normal(x.shape)  # * 10
     y = b_true * x**2 + m_true * x + c_true + err
 
@@ -46,9 +46,11 @@ def generate_data():
     sam = samplex(sampler, Nwalkers)
     result = sam.run(Nsteps, x0_array, cov_matrix, jumping_factor)
     # Should be (Nsteps, Nwalkers, Ndim)
-    # print(result[0])
+    print(result.shape)
+    burned_inchains = np.array(sam.get_chains(remove_burnin=True))
+    print(burned_inchains.shape)
     # quit()
-    result_stacked = np.array(sam.get_chain(discard=1000, flat=True))
+    # result_stacked = np.array(sam.get_chains(discard=1000, flat=True))
 
     names = [
         r"$m$",
@@ -62,7 +64,7 @@ def generate_data():
     ]
 
     fig, axes = corner_plot(
-        data=result_stacked[:, 1:],
+        data=burned_inchains[:, 1:],
         names=names,
         num_bins=[50, 50, 20],
         lims=lims,
@@ -73,14 +75,14 @@ def generate_data():
     )
     plt.show()
 
-    alpha_range = np.linspace(0.1, 1, Nsteps)
+    # alpha_range = np.linspace(0.1, 1, Nsteps)
 
-    for numwalker in range(Nwalkers):
-        plt.scatter(
-            result[:, numwalker, 1], result[:, numwalker, 2], s=10, alpha=alpha_range
-        )
+    # for numwalker in range(Nwalkers):
+    #     plt.scatter(
+    #         result[:, numwalker, 1], result[:, numwalker, 2], s=10, alpha=alpha_range
+    #     )
 
-    plt.show()
+    # plt.show()
 
     plt.figure(figsize=(10, 5))
     # plt.errorbar(

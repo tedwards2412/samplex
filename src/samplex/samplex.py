@@ -39,6 +39,7 @@ class samplex:
         self.keys = mx.random.split(self.key, self.Nwalkers)
         self.chains = None
         self.filename = utils.generate_filename(foldername)
+        self.logL_threshold = 3.0
 
         mx.set_default_device(device)
 
@@ -68,7 +69,7 @@ class samplex:
 
         return self.chains
 
-    def get_chain(self, discard=0, thin=1, flat=True):
+    def get_chains(self, discard=0, thin=1, flat=True, remove_burnin=False):
         """
         Retrieves the generated chains, with options to discard initial steps, thin the chains, and flatten the result.
 
@@ -85,10 +86,30 @@ class samplex:
         """
         if self.chains is None:
             raise ValueError("No chains have been generated yet!")
-        if flat:
-            return self.chains[discard::thin].reshape(-1, self.chains.shape[-1])
+
+        if remove_burnin:
+            for numw, walker in enumerate(self.chains.transpose(1, 0, 2)):
+                minlogL = mx.min(walker[:, 0])
+                l = 0
+                while walker[l, 0] - minlogL > self.logL_threshold:
+                    l += 1
+                if l == len(walker):
+                    print(f"Walker {numw} is not burned in, removing...")
+                    continue
+                else:
+                    try:
+                        burnedin_chains = mx.concatenate(
+                            (burnedin_chains, walker[l:, :])
+                        )
+                    except:
+                        burnedin_chains = walker[l:, :]
+            return burnedin_chains
+
         else:
-            return self.chains[discard::thin]
+            if flat:
+                return self.chains[discard::thin].reshape(-1, self.chains.shape[-1])
+            else:
+                return self.chains[discard::thin]
 
     def reset(self):
         """

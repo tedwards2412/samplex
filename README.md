@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="samplex_logo.png" alt="samplex Logo" width="50%" />
+  <img src="samplex_logo.png" alt="samplex Logo" width="30%" />
 </p>
 
 # samplex

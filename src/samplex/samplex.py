@@ -4,7 +4,34 @@ import samplex.utils as utils
 
 
 class samplex:
+    """
+    A class for managing and executing an MCMC sampler using a specified sampler within the mlx.core framework.
+
+    Attributes:
+        Nwalkers (int): Number of walkers to use in the sampling process.
+        sampler (object): The sampler object responsible for generating samples.
+        key (mx.ndarray): A random key for initializing the random number generator.
+        keys (mx.ndarray): Array of split random keys for each walker.
+        chains (mx.ndarray or None): The chains generated after running the sampler, initially None.
+        device (mx.cpu or mx.gpu): The device (CPU/GPU) where computations will be executed.
+
+    Methods:
+        run(Nsteps, theta_ini, cov_matrix, jumping_factor): Executes the sampling process.
+        get_chain(discard, thin, flat): Retrieves the generated chains, applying thinning and discarding as specified.
+        reset(): Resets the chains to None, allowing for a fresh start.
+        save_chains(filename): Saves the generated chains to a file.
+        get_bestfit(): Computes and returns the best-fit parameters from the generated chains.
+    """
+
     def __init__(self, sampler, Nwalkers, device=mx.cpu):
+        """
+        Initializes the samplex class with the specified sampler, number of walkers, and device for the mlx.core framework.
+
+        Parameters:
+            sampler (object): The sampler object to be used for generating samples.
+            Nwalkers (int): Number of walkers to be used in the sampling process.
+            device (optional): The device (CPU/GPU) for computation. Defaults to mx.cpu.
+        """
         self.Nwalkers = Nwalkers
         self.sampler = sampler
 
@@ -15,6 +42,18 @@ class samplex:
         mx.set_default_device(device)
 
     def run(self, Nsteps, theta_ini, cov_matrix, jumping_factor):
+        """
+        Executes the sampling process with the specified parameters using mlx.core.
+
+        Parameters:
+            Nsteps (int): Number of steps for each walker in the sampling process.
+            theta_ini (mx.ndarray): Initial parameter values for the walkers.
+            cov_matrix (mx.ndarray): Covariance matrix used for the proposal distribution.
+            jumping_factor (float): Scaling factor for the proposal distribution.
+
+        Returns:
+            mx.ndarray: The generated chains after running the sampling process.
+        """
         self.chains = self.sampler.run(
             Nsteps, self.key, theta_ini, cov_matrix, mx.array([jumping_factor])
         )
@@ -22,6 +61,20 @@ class samplex:
         return self.chains
 
     def get_chain(self, discard=0, thin=1, flat=True):
+        """
+        Retrieves the generated chains, with options to discard initial steps, thin the chains, and flatten the result.
+
+        Parameters:
+            discard (int, optional): Number of initial steps to discard from each chain. Defaults to 0.
+            thin (int, optional): Factor by which to thin the chains. A value of n means every nth sample is retained. Defaults to 1.
+            flat (bool, optional): If True, the chains are flattened into a 2D array; otherwise, they are returned as is. Defaults to True.
+
+        Returns:
+            mx.ndarray: The processed chains according to the specified parameters.
+
+        Raises:
+            ValueError: If no chains have been generated yet.
+        """
         if self.chains is None:
             raise ValueError("No chains have been generated yet!")
         if flat:
@@ -30,10 +83,25 @@ class samplex:
             return self.chains[discard::thin]
 
     def reset(self):
+        """
+        Resets the generated chains to None, allowing for a fresh start of the sampling process within mlx.core.
+        """
         self.chains = None
 
     def save_chains(self, filename):
+        """
+        Saves the generated chains to a file in NumPy's binary format, ensuring compatibility with mlx.core arrays.
+
+        Parameters:
+            filename (str): The name of the file to save the chains to.
+        """
         np.save(filename, np.array(self.chains))
 
     def get_bestfit(self):
+        """
+        Computes and returns the best-fit parameters from the generated chains using a utility function compatible with mlx.core.
+
+        Returns:
+            The best-fit parameters derived from the chains.
+        """
         return utils.get_bestfit(self.chains)

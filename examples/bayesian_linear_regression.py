@@ -126,7 +126,7 @@ if __name__ == "__main__":
     cov_matrix = mx.array([0.01, 0.01, 0.01])
     jumping_factor = 1.0
 
-    x0_array = mx.random.uniform(
+    theta0_array = mx.random.uniform(
         mx.array([m_min, c_min, b_min]),
         mx.array([m_max, c_max, b_max]),
         (Nwalkers, Ndim),
@@ -134,5 +134,5 @@ if __name__ == "__main__":
 
     sampler = MH_Gaussian_sampler(logtarget)
     sam = samplex(sampler, Nwalkers)
-    sam.run(Nsteps, x0_array, cov_matrix, jumping_factor)
+    sam.run(Nsteps, theta0_array, cov_matrix, jumping_factor)
     make_plots(x, y, err, sam, b_true, m_true, c_true)

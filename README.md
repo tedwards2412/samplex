@@ -6,7 +6,7 @@
 Package of useful sampling algorithms written in MLX. We plan on exploring how a combination of unified memory (by exploiting GPU and CPU together) and auto-diff can be used to get highly efficient and robust sampling locally on your Mac.
 
 
-# Installtion
+# Installation
 
 ```python
 pip install samplex
@@ -50,7 +50,7 @@ theta0_array = mx.random.uniform(
     (Nwalkers, Ndim),
 )
 
-# Firstly we instatiate a samplex class and then run!
+# Firstly we instantiate a samplex class and then run!
 sampler = MH_Gaussian_sampler(logtarget)
 sam = samplex(sampler, Nwalkers)
 sam.run(Nsteps, theta0_array, cov_matrix, jumping_factor)

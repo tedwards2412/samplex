@@ -10,7 +10,7 @@ Welcome to samplex's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule:: samplex
+.. automodule:: samplex.samplex
     :members:
 
 

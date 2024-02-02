@@ -13,9 +13,8 @@ class MH_Gaussian_sampler:
 
     def proposal_distribution(self, x, y, cov_matrix, jumping_factor=1.0):
         sigma = jumping_factor * cov_matrix
-        return sum(
-            (1 / mx.sqrt(2 * mx.pi * sigma**2))
-            * mx.exp(-0.5 * (y - x) ** 2 / sigma**2)
+        return mx.sum(
+            (1 / mx.sqrt(2 * mx.pi * sigma**2)) * mx.exp(-0.5 * (y - x) ** 2 / sigma**2)
         )
 
     def sample_proposal_distribution(

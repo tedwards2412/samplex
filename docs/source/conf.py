@@ -7,6 +7,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(os.path.abspath("../.."))
 
 # -*- coding: utf-8 -*-
 
@@ -15,8 +16,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
-    "sphinx.ext.mathjax",
-    "myst_nb",
     "IPython.sphinxext.ipython_console_highlighting",
 ]
 
@@ -59,5 +58,3 @@ html_theme_options = {
     "use_repository_button": True,
     "use_download_button": True,
 }
-nb_execution_mode = "off"
-nb_execution_timeout = -1

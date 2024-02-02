@@ -10,6 +10,8 @@ Welcome to samplex's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+.. automodule:: samplex.samplex
+    :members:
 
 
 Indices and tables

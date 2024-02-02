@@ -81,7 +81,7 @@ class MH_Gaussian_sampler:
             new_logLs, new_state = mx.vmap(
                 self.step_walker, in_axes=(0, 0, None, None)
             )(
-                chains[-1],  # 0th element is -logL
+                chains[-1],
                 keys_walkers,
                 cov_matrix,
                 jumping_factor,

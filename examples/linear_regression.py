@@ -14,8 +14,6 @@ def initial_condition(a, b):
 
 
 def generate_data():
-    mx.set_default_device(mx.cpu)
-    # mx.set_default_device(mx.gpu)
     # Parameters we are trying to infer
     m_true = 2.0
     c_true = 3.0
@@ -113,9 +111,10 @@ def generate_data():
         color="k",
         label="truth",
     )
+    bestfit = sam.get_bestfit()
     plt.plot(
         x.tolist(),
-        (result[-1, 0, 3] * x**2 + result[-1, 0, 1] * x + result[-1, 0, 2]).tolist(),
+        (bestfit[3] * x**2 + bestfit[1] * x + bestfit[2]).tolist(),
         "--",
         color="r",
         label="MCMC",

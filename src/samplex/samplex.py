@@ -4,19 +4,27 @@ import samplex.utils as utils
 
 
 class samplex:
-    def __init__(self, sampler, Nwalkers, device=mx.cpu):
+    def __init__(self, sampler, Nwalkers, foldername="MyChains", device=mx.cpu):
         self.Nwalkers = Nwalkers
         self.sampler = sampler
 
         self.key = mx.random.key(1234)
         self.keys = mx.random.split(self.key, self.Nwalkers)
         self.chains = None
+        self.filename = utils.generate_filename(foldername)
 
         mx.set_default_device(device)
 
-    def run(self, Nsteps, theta_ini, cov_matrix, jumping_factor):
+    def run(self, Nsteps, theta_ini, cov_matrix, jumping_factor, Nsave=1000):
         self.chains = self.sampler.run(
-            Nsteps, self.key, theta_ini, cov_matrix, mx.array([jumping_factor])
+            Nsteps=Nsteps,
+            key=self.key,
+            theta_ini=theta_ini,
+            cov_matrix=cov_matrix,
+            jumping_factor=mx.array([jumping_factor]),
+            Nsave=Nsave,
+            filename=self.filename,
+            full_chains=self.chains,
         )
 
         return self.chains

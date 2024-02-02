@@ -5,6 +5,7 @@
 # samplex
 Package of useful sampling algorithms written in MLX. We plan on exploring how a combination of unified memory (by exploiting GPU and CPU together) and auto-diff can be used to get highly efficient and robust sampling locally on your Mac.
 
+Please get in touch if you're interested in contributing (tedwards2412@gmail.com and nash.sabti@gmail.com)!
 
 # Installation
 

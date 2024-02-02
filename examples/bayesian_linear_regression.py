@@ -25,7 +25,7 @@ def log_likelihood(theta, data):
     x, y, sigma = data
     model = b * x**2 + m * x + c
     residual = y - model
-    return sum(-0.5 * (residual**2 / sigma**2))
+    return mx.sum(-0.5 * (residual**2 / sigma**2))
 
 
 def log_prior(theta, uniform_priors):

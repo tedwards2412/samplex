@@ -14,9 +14,11 @@ sys.path.insert(0, os.path.abspath("../.."))
 # General stuff
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
-    "IPython.sphinxext.ipython_console_highlighting",
+    "sphinx.ext.viewcode",
 ]
 
 myst_enable_extensions = ["dollarmath", "colon_fence"]

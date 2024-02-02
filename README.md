@@ -15,3 +15,4 @@ Package of useful sampling algorithms written in MLX
 - ~~Save chains every Nsave steps~~
 - Treating parameters with different update speeds
 - Add file of priors and include in target distribution
+- Include autocorrelation calculation for steps

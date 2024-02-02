@@ -23,7 +23,7 @@ class samplex:
         get_bestfit(): Computes and returns the best-fit parameters from the generated chains.
     """
 
-    def __init__(self, sampler, Nwalkers, device=mx.cpu):
+    def __init__(self, sampler, Nwalkers, foldername="MyChains", device=mx.cpu):
         """
         Initializes the samplex class with the specified sampler, number of walkers, and device for the mlx.core framework.
 
@@ -38,10 +38,11 @@ class samplex:
         self.key = mx.random.key(1234)
         self.keys = mx.random.split(self.key, self.Nwalkers)
         self.chains = None
+        self.filename = utils.generate_filename(foldername)
 
         mx.set_default_device(device)
 
-    def run(self, Nsteps, theta_ini, cov_matrix, jumping_factor):
+    def run(self, Nsteps, theta_ini, cov_matrix, jumping_factor, Nsave=1000):
         """
         Executes the sampling process with the specified parameters using mlx.core.
 
@@ -55,7 +56,14 @@ class samplex:
             mx.ndarray: The generated chains after running the sampling process.
         """
         self.chains = self.sampler.run(
-            Nsteps, self.key, theta_ini, cov_matrix, mx.array([jumping_factor])
+            Nsteps=Nsteps,
+            key=self.key,
+            theta_ini=theta_ini,
+            cov_matrix=cov_matrix,
+            jumping_factor=mx.array([jumping_factor]),
+            Nsave=Nsave,
+            filename=self.filename,
+            full_chains=self.chains,
         )
 
         return self.chains

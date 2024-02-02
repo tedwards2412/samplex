@@ -14,7 +14,8 @@ class MH_Gaussian_sampler:
     def proposal_distribution(self, x, y, cov_matrix, jumping_factor=1.0):
         sigma = jumping_factor * cov_matrix
         return mx.sum(
-            (1 / mx.sqrt(2 * mx.pi * sigma**2)) * mx.exp(-0.5 * (y - x) ** 2 / sigma**2)
+            (1 / mx.sqrt(2 * mx.pi * sigma**2))
+            * mx.exp(-0.5 * (y - x) ** 2 / sigma**2)
         )
 
     def sample_proposal_distribution(
@@ -71,8 +72,24 @@ class MH_Gaussian_sampler:
         )
         return new_state[0], new_state[1]
 
-    def run(self, Nsteps, key, theta_ini, cov_matrix, jumping_factor):
-        logLs, chains = self.initialize_chains(theta_ini)
+    def run(
+        self,
+        Nsteps,
+        key,
+        theta_ini,
+        cov_matrix,
+        jumping_factor,
+        Nsave=1000,
+        filename="MyChains.npy",
+        full_chains=None,
+    ):
+        if full_chains is None:
+            logLs, chains = self.initialize_chains(theta_ini)
+        else:
+            logLs, chains = (
+                list(full_chains[:, :, 0]),
+                list(full_chains[:, :, 1:]),
+            )
         steps = mx.arange(Nsteps)
         keys = mx.random.split(key, Nsteps)
         for step in tqdm(steps):
@@ -90,9 +107,19 @@ class MH_Gaussian_sampler:
             chains.append(new_state)
             logLs.append(new_logLs)
 
+            if (step + 1) % Nsave == 0:
+                current_chains = mx.concatenate(
+                    [
+                        mx.array(logLs).reshape(len(chains), theta_ini.shape[0], 1),
+                        mx.array(chains),
+                    ],
+                    axis=-1,
+                )
+                np.save(filename, np.array(current_chains))
+
         return mx.concatenate(
             [
-                mx.array(logLs).reshape(Nsteps + 1, theta_ini.shape[0], 1),
+                mx.array(logLs).reshape(len(chains), theta_ini.shape[0], 1),
                 mx.array(chains),
             ],
             axis=-1,

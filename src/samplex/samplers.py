@@ -14,7 +14,8 @@ class MH_Gaussian_sampler:
     def proposal_distribution(self, x, y, cov_matrix, jumping_factor=1.0):
         sigma = jumping_factor * cov_matrix
         return mx.sum(
-            (1 / mx.sqrt(2 * mx.pi * sigma**2)) * mx.exp(-0.5 * (y - x) ** 2 / sigma**2)
+            (1 / mx.sqrt(2 * mx.pi * sigma**2))
+            * mx.exp(-0.5 * (y - x) ** 2 / sigma**2)
         )
 
     def sample_proposal_distribution(
@@ -76,12 +77,14 @@ class MH_Gaussian_sampler:
         Nsteps,
         key,
         theta_ini,
-        cov_matrix,
-        jumping_factor,
         Nsave=1000,
         filename="MyChains.npy",
         full_chains=None,
+        **kwargs,
     ):
+        cov_matrix = kwargs.get("cov_matrix", mx.ones(theta_ini.shape[1]))
+        jumping_factor = mx.array([kwargs.get("jumping_factor", 1.0)])
+
         if full_chains is None:
             logLs, chains = self.initialize_chains(theta_ini)
         else:
@@ -225,8 +228,8 @@ class emcee_sampler:
             mx.eval(new_logLs_set2)
             mx.eval(new_set2)
 
-            new_state = mx.concatenate([new_set1, new_set2], axis=1)
-            new_logLs = mx.concatenate([new_logLs_set1, new_logLs_set2], axis=1)
+            new_state = mx.concatenate([new_set1, new_set2], axis=0)
+            new_logLs = mx.concatenate([new_logLs_set1, new_logLs_set2], axis=0)
 
             chains.append(new_state)
             logLs.append(new_logLs)

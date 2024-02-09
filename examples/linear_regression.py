@@ -104,5 +104,5 @@ if __name__ == "__main__":
 
     sampler = MH_Gaussian_sampler(logtarget)
     sam = samplex(sampler, Nwalkers)
-    sam.run(Nsteps, theta0_array, cov_matrix, jumping_factor)
+    sam.run(Nsteps, theta0_array, cov_matrix=cov_matrix, jumping_factor=jumping_factor)
     make_plots(x, y, err, sam, b_true, m_true, c_true)

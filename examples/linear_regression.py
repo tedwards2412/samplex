@@ -2,7 +2,7 @@ import numpy as np
 import mlx.core as mx
 import matplotlib.pyplot as plt
 from samplex.samplex import samplex
-from samplex.samplers import MH_Gaussian_sampler
+from samplex.samplers.MH_Gaussian_sampler import MH_Gaussian_sampler
 from samplex.plotting import corner_plot
 
 seed = 1234

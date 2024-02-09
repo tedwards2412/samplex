@@ -43,7 +43,33 @@ class samplex:
 
         mx.set_default_device(device)
 
-    def run(self, Nsteps, theta_ini, cov_matrix, jumping_factor, Nsave=1000):
+    # def run(self, Nsteps, theta_ini, cov_matrix, jumping_factor, Nsave=1000):
+    #     """
+    #     Executes the sampling process with the specified parameters using mlx.core.
+
+    #     Parameters:
+    #         Nsteps (int): Number of steps for each walker in the sampling process.
+    #         theta_ini (mx.ndarray): Initial parameter values for the walkers.
+    #         cov_matrix (mx.ndarray): Covariance matrix used for the proposal distribution.
+    #         jumping_factor (float): Scaling factor for the proposal distribution.
+
+    #     Returns:
+    #         mx.ndarray: The generated chains after running the sampling process.
+    #     """
+    #     self.chains = self.sampler.run(
+    #         Nsteps=Nsteps,
+    #         key=self.key,
+    #         theta_ini=theta_ini,
+    #         cov_matrix=cov_matrix,
+    #         jumping_factor=mx.array([jumping_factor]),
+    #         Nsave=Nsave,
+    #         filename=self.filename,
+    #         full_chains=self.chains,
+    #     )
+
+    #     return self.chains
+
+    def run(self, Nsteps, theta_ini, Nsave=1000):
         """
         Executes the sampling process with the specified parameters using mlx.core.
 
@@ -60,8 +86,6 @@ class samplex:
             Nsteps=Nsteps,
             key=self.key,
             theta_ini=theta_ini,
-            cov_matrix=cov_matrix,
-            jumping_factor=mx.array([jumping_factor]),
             Nsave=Nsave,
             filename=self.filename,
             full_chains=self.chains,

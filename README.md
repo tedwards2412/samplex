@@ -60,7 +60,7 @@ sam.run(Nsteps, theta0_array, cov_matrix, jumping_factor)
 # Next Steps:
 
 - Get NUTs/HMC running
-- Get Ensemble sampler running (emcee)
+- ~~Get Ensemble sampler running (emcee)~~
 - Refine plotting
 - Add helper functions for variety of priors
 - Treating parameters with different update speeds
